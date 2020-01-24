@@ -1,9 +1,5 @@
 import numpy as np
 import os
-import math
-# from PIL import Image
-
-fileName = '../mol_data/ccp4/4NRE.ccp4'  # 4rtn 4NRE 3hyd EMD-2984.map
 
 hD = {  # header Description
     "NC": [0, 'u4'],
@@ -79,16 +75,3 @@ def read(filename):
         f.seek(1024 + header.fields["nsymbt"])
         data = f.read()
         return CCP4File(os.path.basename(filename), header, data)
-
-
-'''
-width = header["NC"]
-height = header["NR"]
-depth = width * height
-sliceED = int(header["NS"] / 2)
-
-# with no denoising
-img = Image.new('L', (width, height))
-img.putdata(data[depth * (sliceED - 1): depth * sliceED], 128, 128)
-img.save(fileName + 'Image.png')
-'''
