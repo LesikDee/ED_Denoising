@@ -67,10 +67,11 @@ class DSN6File:
 
         byte_data = np.array(np.frombuffer(data, 'u1'), 'u1')
         if header.need_revert:
-            for i in range(0, len(byte_data) // 2, 2):
-                tmp = byte_data[i]
-                byte_data[i] = byte_data[i + 1]
-                byte_data[i + 1] = tmp
+            for i in range(len(byte_data) // 2):
+                tmp = byte_data[2 * i]
+                byte_data[2 * i] = byte_data[2 * i + 1]
+                byte_data[2 * i + 1] = tmp
+
 
         x_extent, y_extent, z_extent = int(header.fields["XExtent"]), \
                                        int(header.fields["YExtent"]), int(header.fields["ZExtent"])
@@ -89,24 +90,17 @@ class DSN6File:
                     i = 0
                     while i < 512:
                         x = i % 8 + 8 * x_block
-                        y = i // 8 + 8 * y_block
+                        y = (i % 64) // 8 + 8 * y_block
                         z = i // 64 + 8 * z_block
-                        # for k in range(8):
-                        #     z = 8 * z_block + k
-                        #     for j in range(8):
-                        #         y = 8 * y_block + j
-                        #         for i in range(8):
-                        #             x = 8 * x_block + i
 
                         if x < x_extent and y < y_extent and z < z_extent:
-                            current_cell_ind = ((z * y_extent) + y) * x_extent + x  # (((x * y_extent) + y) * z_extent) + z
+                            current_cell_ind = ((z * y_extent) + y) * x_extent + x
                             buffer[current_cell_ind] = (int(byte_data[offset]) - addendum) / div
                             offset += 1
                             i += 1
                         else:
                             offset += 8 - i % 8
-                            i += 8 - i % 8  # break
-                            # break
+                            i += 8 - i % 8
 
         self.values = np.ndarray((z_extent, y_extent, x_extent), 'f4',  buffer=buffer)
         self.data = buffer

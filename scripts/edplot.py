@@ -52,7 +52,7 @@ def main(filename: str, sec=None):
 
 
 if __name__ == '__main__':
-    path = '../mol_data/ccp4/3C9L.ccp4'  # '../mol_data/ccp4/4NRE.ccp4'  ../mol_data/dsn6/4NRE.dsn6
+    path = '../mol_data/dsn6/4NRE.dsn6'  # '../mol_data/ccp4/4NRE.ccp4'  ../mol_data/dsn6/4NRE.dsn6
     # if len(sys.argv) < 2 or not os.path.isfile(sys.argv[1]):
     #     print('usage: %s <file.ccp4> [section]' % os.path.basename(sys.argv[0]))
     #     exit(-1)
