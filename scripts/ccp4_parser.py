@@ -1,5 +1,6 @@
 import numpy as np
 import os
+from molecule import MolRepresentation
 
 hD = {  # header Description
     "NC": [0, 'u4'],
@@ -59,8 +60,9 @@ class CCP4Header:
         self.nsec = self.fields["NS"]
 
 
-class CCP4File:
+class CCP4File(MolRepresentation):
     def __init__(self, name, header, data):
+        super().__init__()
         self.name = name
         self.header = header
         self.data = np.array(np.frombuffer(data, 'f4'), 'f4')

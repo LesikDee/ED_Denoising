@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import os
+from molecule import MolRepresentation
 
 hD = {  # header Description
     "XStart": 0,
@@ -60,8 +61,10 @@ class DSN6Header:
         self.nsec = self.fields["ZStart"]
 
 
-class DSN6File:
+class DSN6File(MolRepresentation):
     def __init__(self, name, header: DSN6Header, data):
+        super().__init__()
+
         self.name = name
         self.header = header
 
@@ -104,32 +107,8 @@ class DSN6File:
 
         self.values = np.ndarray((z_extent, y_extent, x_extent), 'f4',  buffer=buffer)
         self.data = buffer
-        self._normalize()
-        self._stats_calc(buffer)
-
-    def _normalize(self):
-        max_val = self.data[0]
-        for i in range(len(self.data)):
-            if math.fabs(self.data[i]) > max_val:
-                max_val = math.fabs(self.data[i])
-
-        self.data /= max_val
-
-    def _stats_calc(self, data_buffer):
-        n = len(data_buffer)
-        mean = 0
-        for i in range(n):
-            mean += data_buffer[i]
-
-        mean /= n
-        self.header.mean = mean
-
-        stddev = 0
-        for i in range(n):
-            stddev += (data_buffer[i] - mean) ** 2
-
-        stddev = (stddev / n) ** 0.5
-        self.header.stddev = stddev
+        self.normalize()
+        self.stats_calc()
 
 
 def read(filename):

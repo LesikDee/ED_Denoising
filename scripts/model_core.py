@@ -1,24 +1,16 @@
 import numpy as np
 import dsn6_parser
 import noise_signal_plot
-
-
-class MolRepresentation:
-    def __init__(self):
-        self.header: {}
-        self.data: np.ndarray
+from molecule import MolRepresentation
 
 
 class Model:
-    # ed_fc = {}  # calculated ed
-    # ed_fo = {}  # obs ed
-
     def __init__(self, ed_2fo_fc, ed_fo_fc):
         self.ed_2fo_fc = ed_2fo_fc
         self.ed_fo_fc = ed_fo_fc
 
-        self.ed_fc = MolRepresentation()
-        self.ed_fo = MolRepresentation()
+        self.ed_fc = MolRepresentation()    # calculated ed
+        self.ed_fo = MolRepresentation()    # obs ed
 
     def execute(self):
         self.ed_fc.header = self.ed_2fo_fc.header
@@ -33,13 +25,16 @@ class Model:
 
 
 if __name__ == '__main__':
-    file_2fo_fc = '../mol_data/dsn6/4xn6_2fofc.dsn6'
-    file_fo_fc = '../mol_data/dsn6/4xn6_fofc.dsn6'
+    file_2fo_fc = '../mol_data/dsn6/4nre_2fofc.dsn6'
+    file_fo_fc = '../mol_data/dsn6/4nre_fofc.dsn6'
 
     ed_2fo_fc = dsn6_parser.read(file_2fo_fc)
     ed_fo_fc = dsn6_parser.read(file_fo_fc)
 
     model = Model(ed_2fo_fc, ed_fo_fc)
     model.execute()
+    model.ed_fo.stats_calc()
     noise_signal_plot.build_graph(model.ed_fo)
+
+
 
