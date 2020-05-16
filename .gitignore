@@ -1,2 +1,5 @@
 scripts/.idea/*
 scripts/__pycache__/*
+.idea/*
+*.pyc
+scenarios/.ipynb_checkpoints/*

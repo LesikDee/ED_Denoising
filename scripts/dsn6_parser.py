@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import os
-from molecule import MolRepresentation
+from scripts.molecule import MolRepresentation
 
 hD = {  # header Description
     "XStart": 0,
@@ -106,10 +106,7 @@ class DSN6File(MolRepresentation):
                             i += 8 - i % 8
 
         self.values = np.ndarray((z_extent, y_extent, x_extent), 'f4',  buffer=buffer)
-        self.data = buffer
-        self.normalize()
-        self.stats_calc()
-
+        self.buffer = buffer
 
 def read(filename):
     with open(filename, 'rb') as f:

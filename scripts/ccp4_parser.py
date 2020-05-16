@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from molecule import MolRepresentation
+from scripts.molecule import MolRepresentation
 
 hD = {  # header Description
     "NC": [0, 'u4'],
@@ -56,19 +56,24 @@ class CCP4Header:
 
         self.data_size = self.fields["NC"] * self.fields["NR"] * self.fields["NS"]
         self.mean = self.fields["amean"]
+        self.max = self.fields["amax"]
+        self.min = self.fields["amin"]
         self.stddev = self.fields["sd"]
         self.nsec = self.fields["NS"]
+
 
 
 class CCP4File(MolRepresentation):
     def __init__(self, name, header, data):
         super().__init__()
         self.name = name
-        self.header = header
-        self.data = np.array(np.frombuffer(data, 'f4'), 'f4')
+        self.header: CCP4Header  = header
+        self.buffer = np.array(np.frombuffer(data, 'f4'), 'f4')
 
         self.values = np.ndarray((header.fields["NS"], header.fields["NR"], header.fields["NC"]), 'f4',
-                                 buffer=self.data)
+                                 buffer=self.buffer)
+
+        print('Mean: {0} \nStddev: {1} \nmin: {2} \nmax: {3})'.format(header.mean, header.stddev, header.min, header.max))
 
 
 def read(filename):

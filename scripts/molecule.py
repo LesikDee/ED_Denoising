@@ -1,13 +1,15 @@
 import numpy as np
-import math
 
 class MolRepresentation:
     def __init__(self):
         self.header: {}
-        self.data: np.ndarray
+        self.buffer: np.array #= np.array
+        self.values: np.ndarray  # = np.ndarray
 
-    def stats_calc(self): # mean and stddev calculation
-        data_buffer = self.data
+        self.is_normalized: bool = False
+
+    def __stats_calc(self): # mean and stddev calculation
+        data_buffer = self.buffer
         n = len(data_buffer)
         mean = 0
         for i in range(n):
@@ -23,10 +25,23 @@ class MolRepresentation:
         stddev = (stddev / n) ** 0.5
         self.header.stddev = stddev
 
-    def normalize(self):
-        max_val = self.data[0]
-        for i in range(len(self.data)):
-            if math.fabs(self.data[i]) > max_val:
-                max_val = math.fabs(self.data[i])
+    def __normalize(self):
+        max_val = self.buffer.max()
+        min_val = self.buffer.min()
 
-        self.data /= max_val
+        self.buffer -= min_val
+        self.buffer /= max_val - min_val
+
+    def re_normalize(self):
+        if self.is_normalized:
+            return
+
+        self.__normalize()
+        self.__stats_calc()
+        self.is_normalized = True
+
+    def update_values(self, new_values: np.ndarray):
+        self.values = new_values
+
+        self.buffer = np.ravel(new_values)
+        self.is_normalized = False
