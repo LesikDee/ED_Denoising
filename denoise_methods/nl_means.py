@@ -12,8 +12,8 @@ class NLMeans(DenoiseMethod):
         super().__init__(data)
         self.sigma = sigma
 
-        self.f: int = 5
-        self.r: int = 21
+        self.f: int = 2
+        self.r: int = 10
         self.h: int = 0.4 * sigma
         self.q_arr_size = 10
 
@@ -22,11 +22,13 @@ class NLMeans(DenoiseMethod):
         f = self.f
         for j in range(-f, f + 1):
             for i in range(-f, f + 1):
-                dist_2 += (vd_slice[p.y + i][p.x + j] - vd_slice[q.y + i][q.x + j]) ** 2
-        return dist_2 / (2 * f + 1) ** 2
+                razn = vd_slice[p.y + i][p.x + j] - vd_slice[q.y + i][q.x + j]
+                dist_2 += razn * razn
+
+        return 250000.0 * dist_2 / (2 * f + 1) ** 2
 
     def __weight_2d(self, p: Pixel, q: Pixel, vd_slice) -> float:
-        sigma, h = self.sigma, self.h
+        sigma, h = self.sigma * 0.1, self.h
         d_2 = self.__distance2_2d(p, q, vd_slice)
         return math.e ** -(max(d_2 - 2 * sigma * sigma, 0.0) / (h * h))
 
@@ -34,25 +36,25 @@ class NLMeans(DenoiseMethod):
     def __precise_edges(self, p: Pixel):
         precise_p: Pixel = Pixel(p.x, p.y)
 
-        if p.x - self.r / 2 < 0:
-            precise_p.x = self.r / 2
-        if p.y - self.r / 2 < 0:
-            precise_p.y = self.r / 2
+        if p.x - self.r  < 0:
+            precise_p.x = self.r // 2
+        if p.y - self.r  < 0:
+            precise_p.y = self.r // 2
 
-        if p.x + self.r / 2 > self.width:
-            precise_p.x = self.width - self.r / 2 - 1
-        if p.y  + self.r / 2 > self.height:
-            precise_p.y = self.height - self.r / 2 - 1
+        if p.x + self.r >= self.width:
+            precise_p.x = self.width - self.r  - 1
+        if p.y  + self.r >= self.height:
+            precise_p.y = self.height - self.r  - 1
 
         return precise_p
 
 
-    def __generate_q_patches_arr(self, p: Pixel, arr_size) -> np.array:
-        q_patch_arr = np.zeros(arr_size)
-        r_range = self.r - self.f
+    def __generate_q_patches_arr(self, p: Pixel, arr_size) -> []:
+        q_patch_arr = []
+        r_range = 2 * self.r - 2 * self.f
         for q_number in range(arr_size):
-            q_patch_arr[q_number] = Pixel(p.x + random.randint(0,r_range) - r_range / 2,
-                                          p.y + random.randint(0,r_range) - r_range / 2)
+            q_patch_arr.append(Pixel(p.x + random.randint(0,r_range) - r_range // 2,
+                                          p.y + random.randint(0,r_range) - r_range // 2))
 
         return q_patch_arr
 
@@ -60,10 +62,11 @@ class NLMeans(DenoiseMethod):
         data = self.data
         length, width, height = self.length, self.width, self.height
         denoise_arr: np.ndarray = data.copy()
-
         for z in range(length):
+            print('z', z / length)
             vd_slice = data[z]
             for y in range(height):
+                #print('y', y / height)
                 for x in range(width):
                     p = Pixel(x, y)
                     precise_p = self.__precise_edges(p)
