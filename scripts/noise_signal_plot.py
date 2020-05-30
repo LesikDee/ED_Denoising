@@ -13,9 +13,9 @@ def build_graph(ed):
     for i in range(grid_number):
         ed_arr[i] = 0
 
-    print('ed.buffer.min:', ed.buffer.min())
-    print('ed.buffer.max:', ed.buffer.max())
-    print('ed.header.mean:', ed.header.mean)
+    # print('ed.buffer.min:', ed.buffer.min())
+    # print('ed.buffer.max:', ed.buffer.max())
+    # print('ed.header.mean:', ed.header.mean)
     print('ed.header.stddev:', ed.header.stddev)
 
     threshold = ed.header.mean + ed.header.stddev
@@ -24,15 +24,19 @@ def build_graph(ed):
         val = int(ed.buffer[i] * (grid_number - 1))
         ed_arr[val] += 1
 
+    x_axe = np.linspace(0.0, 1.0, num=grid_number)
 
-    x_axe = np.arange(0, grid_number)
     pyplot.figure()
+
+    name = ed.name.split('.')[0]
+    pyplot.suptitle(name)
     pyplot.plot(x_axe, ed_arr)
+    pyplot.axvline(threshold, color='g')
 
-    pyplot.axvline(threshold * (grid_number - 1), color='g')
+    #print('threshold', threshold)
+    #pyplot.show()
 
-    print('threshold', threshold)
-    pyplot.show()
+    pyplot.savefig(''.join(['../results/',name,'/histogram.png']))
 
 
 def build_signal(ed_model: mp.Model):

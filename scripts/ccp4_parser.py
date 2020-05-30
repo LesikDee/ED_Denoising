@@ -65,15 +65,14 @@ class CCP4Header:
 
 class CCP4File(MolRepresentation):
     def __init__(self, name, header, data):
-        super().__init__()
-        self.name = name
+        super().__init__(name)
         self.header: CCP4Header  = header
         self.buffer = np.array(np.frombuffer(data, 'f4'), 'f4')
 
         self.values = np.ndarray((header.fields["NS"], header.fields["NR"], header.fields["NC"]), 'f4',
                                  buffer=self.buffer)
 
-        print('Mean: {0} \nStddev: {1} \nmin: {2} \nmax: {3})'.format(header.mean, header.stddev, header.min, header.max))
+        # print('Mean: {0} \nStddev: {1} \nmin: {2} \nmax: {3})'.format(header.mean, header.stddev, header.min, header.max))
 
 
 def read(filename):
@@ -81,4 +80,37 @@ def read(filename):
         header = CCP4Header(f.read(1024))
         f.seek(1024 + header.fields["nsymbt"])
         data = f.read()
-        return CCP4File(os.path.basename(filename), header, data)
+
+    return CCP4File(os.path.basename(filename), header, data)
+
+type_clarify = {
+    'u4':   'uint32',
+    'i4':   'int32',
+    'f4':   'float32',
+}
+
+def to_ccp4_file(ed: MolRepresentation, suffix = ''):
+    name = ed.name.split('.')[0]
+    file_name = ''.join(['../results/', name, '/', name, '_', suffix,'.ccp4'])
+    with open(file_name, 'w') as f:
+        # write header
+        prev_val_i = 0
+        for val in hD:
+            val_i = hD[val][0]
+            if val_i - prev_val_i > 1:
+                f.seek(val_i * 4)
+
+            prev_val_i = val_i
+
+            ed.header.fields[val].tofile(f)  # astype(t)
+        f.seek(1024 + ed.header.fields["nsymbt"])
+
+        # write buffer
+        ed.buffer.tofile(f)
+
+
+if __name__ == '__main__':
+    file = '../mol_data/ccp4/4nre.ccp4'
+
+    molecul = read(file)
+    to_ccp4_file(molecul, 'tmp')

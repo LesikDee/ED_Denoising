@@ -7,9 +7,9 @@ hD = {  # header Description
     "XStart": 0,
     "YStart": 1,
     "ZStart": 2,
-    "XExtent": 3,
-    "YExtent": 4,
-    "ZExtent": 5,
+    "NC": 3,   # XExtent
+    "NR": 4,   # YExtent
+    "NS": 5,   # ZExtent
     "XSP": 6,  # Sampling rate
     "YSP": 7,
     "ZSP": 8,
@@ -63,9 +63,8 @@ class DSN6Header:
 
 class DSN6File(MolRepresentation):
     def __init__(self, name, header: DSN6Header, data):
-        super().__init__()
+        super().__init__(name)
 
-        self.name = name
         self.header = header
 
         byte_data = np.array(np.frombuffer(data, 'u1'), 'u1')
@@ -76,8 +75,8 @@ class DSN6File(MolRepresentation):
                 byte_data[2 * i + 1] = tmp
 
 
-        x_extent, y_extent, z_extent = int(header.fields["XExtent"]), \
-                                       int(header.fields["YExtent"]), int(header.fields["ZExtent"])
+        x_extent, y_extent, z_extent = int(header.fields["NC"]), \
+                                       int(header.fields["NR"]), int(header.fields["NS"])
 
         div, addendum = int(header.fields["div"]), int(header.fields["sum"])
         buffer = np.empty(x_extent * y_extent * z_extent, 'f4')
