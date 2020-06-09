@@ -6,21 +6,21 @@ from scripts import edplot
 import numpy as np
 
 if __name__ == '__main__':
-    file_name1 = '/mol_data/ccp4/EMD-6479.ccp4'  # dsn6/4nre_2fofc.dsn6 ccp4/4nre.ccp4 EMD-3061 EMD-6479
-    file_name2 = '/mol_data/ccp4/EMD-3061.ccp4'
-    file_names = [file_name1]
+    file_name1 = '/mol_data/ccp4/EMD-3061.ccp4'  # dsn6/4nre_2fofc.dsn6 ccp4/4nre.ccp4 EMD-3061 EMD-6479
+    file_name2 = '/mol_data/ccp4/EMD-6479.ccp4'
+    file_names = [file_name2] #, file_name2]
     for name in file_names:
         file_path = str(get_project_root().parent) + name
+
         ed = read(file_path)
 
-        import denoise_methods.nl_means as nlm
+        import denoise_methods.BMND as BMND
 
-        #edplot.edplot2d(ed, optName='true')
+
         ed.re_normalize()
         ed.update_from_buffer(ed.buffer)
-        denoiser = nlm.NLMeans(ed.values, 40)
+        denoiser = BMND.BMnD(ed.values, 40)
         denoise_data = denoiser.execute_2d()
-
 
         ed.update_from_values(denoise_data)
         ed.header.mean = np.mean(ed.buffer)
@@ -34,8 +34,8 @@ if __name__ == '__main__':
         ed.header.fields["amin"] = ed.header.min
         ed.header.fields["sd"] = ed.header.stddev
 
-        #print('++++++', ed.header.min, ed.header.max, ed.header.mean, ed.header.stddev)
+        print(ed.header.min, ed.header.max, ed.header.mean, ed.header.stddev)
         #ed.re_normalize()
-        edplot.edplot2d(ed, optName='nlm_2d')
-
-        #to_ccp4_file(ed, 'nlm_2d')
+        #edplot.edplot2d(ed,optName='bm3d_')
+        #edplot.edplot2d(ed, optName='true1')
+        to_ccp4_file(ed, 'bm3d')

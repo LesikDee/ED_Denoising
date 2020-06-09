@@ -16,10 +16,10 @@ class MolRepresentation:
     def __normalize(self):
         max_val = self.buffer.max()
         min_val = self.buffer.min()
-        print(min_val, max_val)
 
         self.buffer -= min_val
         self.buffer /= max_val - min_val
+
 
     def re_normalize(self):
         if self.is_normalized:

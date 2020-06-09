@@ -13,12 +13,10 @@ def __distance2_2d(p: Pixel, q: Pixel, vd_slice):
 
     return 250000.0 * dist_2 / (2 * f + 1) ** 2
 
-
 def __weight_2d(p: Pixel, q: Pixel, vd_slice, sigma) -> float:
     sigma, h = sigma * 0.1, 0.4 * sigma
     d_2 = __distance2_2d(p, q, vd_slice)
     return math.e ** -(max(d_2 - 2 * sigma * sigma, 0.0) / (h * h))
-
 
 def __precise_edges(p: Pixel, height, width):
     precise_p: Pixel = Pixel(p.x, p.y)
@@ -61,9 +59,10 @@ def multi_2d(input_tuple):
             for q in q_arr:
                 weight = __weight_2d(precise_p, q, vd_slice, sigma)
                 c += weight
-                nl_u += vd_slice[p.y][p.x] * weight
+                nl_u += vd_slice[q.y][q.x] * weight
 
             denoise_arr[p.y][p.x] = nl_u / c
+
 
     print(z)
     return denoise_arr
@@ -88,21 +87,21 @@ class NLMeans(DenoiseMethod):
         self.h: int = 0.4 * sigma
 
 
-
     def execute_2d(self):
         data = self.data
         length, width, height = self.length, self.width, self.height
         denoise_arr: np.ndarray = np.zeros((length, width, height), 'f4')
 
-        input_data = []
-        for z in range(length):
-            input_data.append((data[z], height, width, self.sigma, z))
-
-        p = multiprocessing.Pool(multiprocessing.cpu_count())
-        slices_map = p.map(multi_2d, input_data)
-
-        for z in range(length):
-            denoise_arr[z] = slices_map[z]
-
-        return denoise_arr
+        # input_data = []
+        # for z in range(length):
+        #     input_data.append((data[z], height, width, self.sigma, z))
+        #
+        # p = multiprocessing.Pool(multiprocessing.cpu_count())
+        # slices_map = p.map(multi_2d, input_data)
+        #
+        # for z in range(length):
+        #     denoise_arr[z] = slices_map[z]
+        z = length // 2
+        data[z] = multi_2d([data[z], height, width, self.sigma, z])
+        return data
 
