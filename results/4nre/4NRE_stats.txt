@@ -1,0 +1,6 @@
+mean 0.2650497
+sd 0.0586555
+Signal elements number: 126513
+Noise elements number: 1323954
+All elements number: 1450467
+Ratio: 0.08722225324671296

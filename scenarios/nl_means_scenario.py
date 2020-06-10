@@ -36,6 +36,6 @@ if __name__ == '__main__':
 
         #print('++++++', ed.header.min, ed.header.max, ed.header.mean, ed.header.stddev)
         #ed.re_normalize()
-        edplot.edplot2d(ed, optName='nlm_2d')
+        #edplot.edplot2d(ed, optName='nlm_2d')
 
-        #to_ccp4_file(ed, 'nlm_2d')
+        to_ccp4_file(ed, 'nlm_2d')

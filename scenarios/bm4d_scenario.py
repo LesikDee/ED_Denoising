@@ -4,22 +4,21 @@ from scripts import get_project_root
 from scripts.ccp4_parser import to_ccp4_file
 from scripts import edplot
 import numpy as np
+from scenarios import EMD_2984, _4NRE, EMD_3061, EMD_6479
+import denoise_methods.BM4D as BM4D
 
 if __name__ == '__main__':
-    file_name1 = '/mol_data/ccp4/EMD-3061.ccp4'  # dsn6/4nre_2fofc.dsn6 ccp4/4nre.ccp4 EMD-3061 EMD-6479
-    file_name2 = '/mol_data/ccp4/EMD-6479.ccp4'
-    file_names = [file_name2] #, file_name2]
-    for name in file_names:
+    name = EMD_2984
+    threshold_list = [5.0]
+    for tr in threshold_list:
         file_path = str(get_project_root().parent) + name
 
         ed = read(file_path)
 
-        import denoise_methods.BM3D as BMND
-
-
+        #tr = 4.85
         ed.re_normalize()
-        denoiser = BMND.BMnD(ed.values, 40)
-        denoise_data = denoiser.execute_2d()
+        denoiser = BM4D.BM4D(ed.values, 40)
+        denoise_data = denoiser.execute_3d(tr)
 
         ed.update_from_values(denoise_data)
         ed.header.mean = np.mean(ed.buffer)
@@ -37,4 +36,4 @@ if __name__ == '__main__':
         #ed.re_normalize()
         #edplot.edplot2d(ed,optName='bm3d_')
         #edplot.edplot2d(ed, optName='true1')
-        to_ccp4_file(ed, 'bm3d_2')
+        to_ccp4_file(ed, 'bm4d_14p_' + str(tr))

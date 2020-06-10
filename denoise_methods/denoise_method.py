@@ -4,6 +4,12 @@ class Pixel:
         self.x = x
         self.y = y
 
+class Voxel:
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+
 class DenoiseMethod:
     def __init__(self, data: np.ndarray):
         self. data = data

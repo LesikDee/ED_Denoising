@@ -38,49 +38,28 @@ def build_graph(ed):
 
     pyplot.savefig(''.join(['../results/',name,'/histogram.png']))
 
-
-def build_signal(ed_model: mp.Model):
-    ed_model.execute_fc()
-    ideal: MolRepresentation = ed_model.ed_fc
-    ed: MolRepresentation = ed_model.ed_2fo_fc
-
-    ideal.re_normalize()
+def write_stats(ed: MolRepresentation, file_type = '_stats'):
     ed.re_normalize()
+    name = ed.name.split('.')[0]
+    with open(''.join(['../results/',name,'/', name,  file_type ,'.txt']), 'w') as f:
+        f.write('mean ' + str(ed.header.mean) + '\n')
+        f.write('sd ' + str(ed.header.stddev) + '\n')
 
-    data_length = len(ideal.buffer)
-    signal_points_buf = np.empty(data_length, dtype=np.bool)
+        n = len(ed.buffer)
 
-    threshold_ideal = ideal.header.mean + ideal.header.stddev
-    print('threshold_ideal', threshold_ideal)
-    grid_number = 400
-    ed_ideal_arr = np.empty(grid_number, 'i4')
-    ed_model_arr = np.empty(grid_number, 'i4')
-    for i in range(grid_number):
-        ed_ideal_arr[i] = 0
-        ed_model_arr[i] = 0
+        threshold = ed.header.mean + ed.header.stddev
+        noise_elm_count = 0
+        signal_elm_count = 0
 
-    threshold = ed.header.mean + ed.header.stddev
+        for elm in ed.buffer:
+            if elm >= threshold:
+                signal_elm_count += 1
+            else:
+                noise_elm_count += 1
 
-    for i in range(data_length):
-        signal_points_buf[i] = (ideal.buffer[i] >= threshold_ideal)
-        val = int(ed.buffer[i] * (grid_number - 1))
-        ed_model_arr[val] += 1
-        if signal_points_buf[i]:
-            ed_ideal_arr[val] += 1
+        f.write('Signal elements number: ' + str(signal_elm_count) + '\n')
+        f.write('Noise elements number: ' + str(noise_elm_count) + '\n')
+        f.write('All elements number: ' + str(noise_elm_count + signal_elm_count) + '\n')
+        f.write('Ratio: ' + str(signal_elm_count / (noise_elm_count + signal_elm_count) ) + '\n')
 
-    x_axe = np.arange(0, grid_number)
-    pyplot.figure()
-    pyplot.plot(x_axe, ed_model_arr, color='g')
-    pyplot.plot(x_axe, ed_ideal_arr, color='b')
-    pyplot.axvline(threshold * (grid_number - 1), color='r')
-    pyplot.show()
 
-if __name__ == '__main__':
-    file_2fo_fc = '../mol_data/dsn6/4nre_2fofc.dsn6'
-    file_fo_fc = '../mol_data/dsn6/4nre_fofc.dsn6'
-
-    ed_2fo_fc = ed_parser.read(file_2fo_fc)
-    ed_fo_fc = ed_parser.read(file_fo_fc)
-    model = mp.Model(ed_2fo_fc, ed_fo_fc)
-
-    build_signal(model)

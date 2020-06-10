@@ -1,14 +1,13 @@
 from .denoise_method import *
 import random
 import numpy
+import multiprocessing
 
-def distance2_2d(patch_p: Pixel, patch_q: Pixel, vd_slice, patch_size):
-    dist_2 = 0
-    for j in range(0, patch_size):
-        for i in range(0, patch_size):
-            diff = vd_slice[patch_p.y + i][patch_p.x + j] - vd_slice[patch_q.y + i][patch_q.x + j]
-            dist_2 += diff * diff
+def distance2_2d(p: Pixel, q: Pixel, vd_slice, patch_size):
+    dist_m = vd_slice[p.y: p.y + patch_size, p.x: p.x + patch_size] - \
+             vd_slice[q.y: q.y + patch_size, q.x: q.x + patch_size]
 
+    dist_2 = np.sum(dist_m ** 2)
     return 1000.0 * dist_2 / (2 * patch_size + 1) ** 2
 
 # current_p - left upper patch pixel
@@ -31,6 +30,53 @@ class Area:
         self.start: Pixel = Pixel(x=p_start_x, y=p_start_y)
         self.end: Pixel =Pixel(x=p_start_x + area_size, y=p_start_y+ area_size)
 
+
+
+def multi_2d(input_tuple):
+    slice_2d, height, width, z = input_tuple[0], input_tuple[1], input_tuple[2], input_tuple[3]
+    used_patches = numpy.zeros((height, width), dtype=bool)
+    numerator_slice = numpy.copy(slice_2d)
+    denum_slice = numpy.ones((height, width), dtype='f4')
+    y_finish, y = False, 0
+    while not y_finish:
+        if y > height - BMnD.PATCH_SIZE:
+            y = height - BMnD.PATCH_SIZE - 1
+            y_finish = True
+
+        x_finish, x = False, 0
+        while not x_finish:
+            if x > width - BMnD.PATCH_SIZE:
+                x = width - BMnD.PATCH_SIZE - 1
+                x_finish = True
+
+
+            p = Pixel(x, y)
+            group_list = BMnD.grouping_2d(slice_2d, p, height, width, used_patches)
+            block, block_place = group_list[0], group_list[1]
+
+            block_depth = len(block_place)
+            if block_depth > 1:
+
+                block_filtered = BMnD.filtering_2d(block)
+
+                # aggregation
+                for block_z in range(block_depth):
+                    y_place = block_place[block_z].y
+                    x_place = block_place[block_z].x
+                    numerator_slice[y_place: y_place + BMnD.PATCH_SIZE, x_place: x_place + BMnD.PATCH_SIZE] \
+                        += block_filtered[block_z]
+
+                    denum_slice[y_place: y_place + BMnD.PATCH_SIZE, x_place: x_place + BMnD.PATCH_SIZE] \
+                        += 1.0
+
+            x += BMnD.PATCH_STEP
+
+        y += BMnD.PATCH_STEP
+
+    numerator_slice /= denum_slice
+    print(z)
+    return numerator_slice
+
 class BMnD(DenoiseMethod):
 
     PATCH_SIZE = 8
@@ -44,10 +90,6 @@ class BMnD(DenoiseMethod):
     def __init__(self, data: np.ndarray, sigma: float = 0):
         super().__init__(data)
         self.sigma = sigma
-
-    @staticmethod
-    def define_search_area(self):
-        pass
 
     @staticmethod
     def grouping_2d(data: np.ndarray, patch_p: Pixel, height, width, used_patches: np.ndarray):
@@ -113,35 +155,16 @@ class BMnD(DenoiseMethod):
     def execute_2d(self):
         length, width, height = self.length, self.width, self.height
 
+        denoise_arr: np.ndarray = np.zeros((length, width, height), 'f4')
+
+        input_data = []
         for z in range(length):
-            slice_2d: np.ndarray = self.data[z]
+            input_data.append((self.data[z], height, width, z))
 
-            used_patches = numpy.zeros((height, width), dtype=bool)
-            numerator_slice = numpy.copy(slice_2d)
-            denum_slice = numpy.ones((height, width), dtype='f4')
-            for y in range(0, height - self.PATCH_SIZE, self.PATCH_STEP):
-                for x in range(0, width - self.PATCH_SIZE, self.PATCH_STEP):
-                    p = Pixel(x, y)
-                    group_list = BMnD.grouping_2d(slice_2d, p, height, width, used_patches)
-                    block, block_place = group_list[0], group_list[1]
+        p = multiprocessing.Pool(multiprocessing.cpu_count())
+        slices_map = p.map(multi_2d, input_data)
 
-                    block_depth = len(block_place)
-                    if block_depth > 1:
+        for z in range(length):
+            denoise_arr[z] = slices_map[z]
 
-                        block_filtered = BMnD.filtering_2d(block)
-
-                        # aggregation
-                        for block_z in range(block_depth):
-                            y_place = block_place[block_z].y
-                            x_place = block_place[block_z].x
-                            numerator_slice[y_place: y_place + BMnD.PATCH_SIZE, x_place: x_place + BMnD.PATCH_SIZE] \
-                                    += block_filtered[block_z]
-
-                            denum_slice[y_place: y_place + BMnD.PATCH_SIZE, x_place: x_place + BMnD.PATCH_SIZE] \
-                                    += 1.0
-
-            numerator_slice /= denum_slice
-            self.data[z] = numerator_slice
-            print(z)
-
-        return self.data
+        return denoise_arr

@@ -92,16 +92,15 @@ class NLMeans(DenoiseMethod):
         length, width, height = self.length, self.width, self.height
         denoise_arr: np.ndarray = np.zeros((length, width, height), 'f4')
 
-        # input_data = []
-        # for z in range(length):
-        #     input_data.append((data[z], height, width, self.sigma, z))
-        #
-        # p = multiprocessing.Pool(multiprocessing.cpu_count())
-        # slices_map = p.map(multi_2d, input_data)
-        #
-        # for z in range(length):
-        #     denoise_arr[z] = slices_map[z]
-        z = length // 2
-        data[z] = multi_2d([data[z], height, width, self.sigma, z])
-        return data
+        input_data = []
+        for z in range(length):
+            input_data.append((data[z], height, width, self.sigma, z))
+
+        p = multiprocessing.Pool(multiprocessing.cpu_count())
+        slices_map = p.map(multi_2d, input_data)
+
+        for z in range(length):
+            denoise_arr[z] = slices_map[z]
+
+        return denoise_arr
 
