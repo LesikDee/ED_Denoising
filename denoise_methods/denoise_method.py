@@ -23,3 +23,4 @@ class DenoiseMethod:
 
     def execute_3d(self):
         pass
+

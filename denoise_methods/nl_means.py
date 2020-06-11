@@ -4,13 +4,11 @@ import random
 import multiprocessing
 
 def __distance2_2d(p: Pixel, q: Pixel, vd_slice):
-    dist_2 = 0
     f = NLMeans.f
-    for j in range(-f, f + 1):
-        for i in range(-f, f + 1):
-            razn = vd_slice[p.y + i][p.x + j] - vd_slice[q.y + i][q.x + j]
-            dist_2 += razn * razn
+    dist_m = vd_slice[p.y - f: p.y + f + 1, p.x - f: p.x + f + 1] - \
+             vd_slice[q.y - f: q.y + f + 1 , q.x - f: q.x + f + 1]
 
+    dist_2 = np.sum(dist_m ** 2)
     return 250000.0 * dist_2 / (2 * f + 1) ** 2
 
 def __weight_2d(p: Pixel, q: Pixel, vd_slice, sigma) -> float:
@@ -74,11 +72,11 @@ class Pixel:
 
 class NLMeans(DenoiseMethod):
 
-    Q_ARR_SIZE = 10
+    Q_ARR_SIZE = 14
 
-    r = 10
+    r = 22
 
-    f =  2
+    f =  6
 
     def __init__(self, data: np.ndarray, sigma: float):
         super().__init__(data)
@@ -90,13 +88,14 @@ class NLMeans(DenoiseMethod):
     def execute_2d(self):
         data = self.data
         length, width, height = self.length, self.width, self.height
-        denoise_arr: np.ndarray = np.zeros((length, width, height), 'f4')
+        denoise_arr: np.ndarray = np.zeros((length,height, width), 'f4')
 
         input_data = []
         for z in range(length):
             input_data.append((data[z], height, width, self.sigma, z))
 
-        p = multiprocessing.Pool(multiprocessing.cpu_count())
+        #p = multiprocessing.Pool(multiprocessing.cpu_count())
+        p = multiprocessing.Pool(1)
         slices_map = p.map(multi_2d, input_data)
 
         for z in range(length):

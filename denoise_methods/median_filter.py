@@ -7,7 +7,7 @@ class MedianFilter(DenoiseMethod):
         super().__init__(data)
         self.sigma = sigma
 
-        self.window_size = 5
+        self.window_size = 11
 
     def execute_3d(self):
         data = self.data
@@ -15,7 +15,7 @@ class MedianFilter(DenoiseMethod):
         length, width, height = self.length, self.width, self.height
 
         edge = window_size // 2
-        denoise_arr = np.zeros((length, width, height), 'f4')
+        denoise_arr = np.zeros((length, height, width), 'f4')
         expend_data = self.__expend_array(data, edge)
 
         pixels_in_window = window_size * window_size * window_size
@@ -42,7 +42,7 @@ class MedianFilter(DenoiseMethod):
         return denoise_arr
 
     def __expend_array(self, origin_array: np.ndarray, edge:int) -> np.ndarray:
-        mean_value = np.mean(origin_array)
+        mean_value = float(np.mean(origin_array))
         denoise_arr = np.full((self.length + 2 * edge, self.height + 2 * edge, self.width + 2 * edge), mean_value)
         denoise_arr[edge: self.length + edge, edge: self.height + edge, edge: self.width + edge] = origin_array
         return denoise_arr
@@ -53,7 +53,7 @@ class MedianFilter(DenoiseMethod):
         length, width, height = self.length, self.width, self.height
 
         edge = window_size // 2
-        denoise_arr = np.zeros((length, width, height), 'f4')
+        denoise_arr = np.zeros((length, height, width), 'f4')
         expend_data = self.__expend_array(data, edge)
 
         pixels_in_window = window_size * window_size
