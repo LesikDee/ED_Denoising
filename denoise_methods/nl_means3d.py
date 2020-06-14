@@ -12,11 +12,11 @@ def distance2_3d(p: Voxel, q: Voxel, data):
     return dist_2 / (2 * f + 1) ** 3
 
 def weight(p: Voxel, q: Voxel, data, sigma) -> float:
-    #h = 0.2 * sigma
-    h = 16 * sigma
-    d_2 = distance2_3d(p, q, data) * 2.5 * 10e8
-    #print(d_2, d_2 - 2 * sigma * sigma,  math.e ** -(max(d_2 - 2 * sigma * sigma, 0.0) / (h * h)))
-    return math.e ** -(max(d_2 - 2 * sigma * sigma, 0.0) / (h * h))
+    sigma2 = 0.0007
+    h2 = 1.4 * sigma2
+    d_2 = distance2_3d(p, q, data)
+    #print(math.e ** -(max(d_2 - 0.0007, 0.0) / h2))
+    return math.e ** -(max(d_2 - sigma2, 0.0) / h2)
 
 def __precise_edges(p: Voxel, length, height, width, offset_length):
     precise_p: Voxel = Voxel(p.x, p.y, p.z)

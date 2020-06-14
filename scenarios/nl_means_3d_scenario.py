@@ -6,7 +6,7 @@ import numpy as np
 from scenarios import EMD_2984, _4NRE, EMD_3061, EMD_6479
 
 if __name__ == '__main__':
-    file_names = [EMD_2984]
+    file_names = [EMD_6479]
     for name in file_names:
         file_path = str(get_project_root().parent) + name
         ed = read(file_path)
@@ -16,7 +16,7 @@ if __name__ == '__main__':
         #edplot.edplot2d(ed, optName='true')
         ed.re_normalize()
         ed.update_from_buffer(ed.buffer)
-        denoiser = nlm.NLMeans(ed.values, 400)
+        denoiser = nlm.NLMeans(ed.values, 40)
         denoise_data = denoiser.execute_3d()
 
 
@@ -36,4 +36,4 @@ if __name__ == '__main__':
         #ed.re_normalize()
         #edplot.edplot2d(ed, optName='nlm_2d')
 
-        to_ccp4_file(ed, 'nlm_3d_h16s_s400')
+        to_ccp4_file(ed, 'nlm_3d_v2_1.4s')
