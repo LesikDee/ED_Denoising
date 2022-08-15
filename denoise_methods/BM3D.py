@@ -39,13 +39,13 @@ def multi_2d(input_tuple):
     denum_slice = numpy.ones((height, width), dtype='f4')
     y_finish, y = False, 0
     while not y_finish:
-        if y > height - BMnD.PATCH_SIZE:
+        if y >= height - BMnD.PATCH_SIZE:
             y = height - BMnD.PATCH_SIZE - 1
             y_finish = True
 
         x_finish, x = False, 0
         while not x_finish:
-            if x > width - BMnD.PATCH_SIZE:
+            if x >= width - BMnD.PATCH_SIZE:
                 x = width - BMnD.PATCH_SIZE - 1
                 x_finish = True
 
@@ -81,7 +81,7 @@ class BMnD(DenoiseMethod):
 
     PATCH_SIZE = 8
 
-    PATCH_STEP = 4
+    PATCH_STEP = 3
 
     MAX_FIND_STEPS = 30
 
@@ -95,7 +95,7 @@ class BMnD(DenoiseMethod):
     def grouping_2d(data: np.ndarray, patch_p: Pixel, height, width, used_patches: np.ndarray):
         block_index = [patch_p]
         dist_list = [0.0]
-        used_patches[patch_p.y][patch_p.x] = True
+        #used_patches[patch_p.y][patch_p.x] = True
 
         search_area = Area(patch_p, height, width, BMnD.MATCH_AREA_SIZE, BMnD.PATCH_SIZE)
 
@@ -111,8 +111,8 @@ class BMnD(DenoiseMethod):
 
             dist = distance2_2d(patch_p, potential_patch, data, BMnD.PATCH_SIZE)
 
-            if dist < 0.5:
-                used_patches[potential_patch.y][potential_patch.x] = True
+            if dist < 0.55:
+                #used_patches[potential_patch.y][potential_patch.x] = True
                 # insert
                 i = 0
                 while i < len(block_index) and dist > dist_list[i]:
@@ -120,8 +120,11 @@ class BMnD(DenoiseMethod):
                 block_index.insert(i, potential_patch)
                 dist_list.insert(i, dist)
 
-            if len(block_index) == BMnD.PATCH_SIZE:
-                break
+            if len(block_index) == BMnD.PATCH_SIZE + 1:
+                block_index.pop()
+                dist_list.pop()
+                if find_steps == BMnD.MAX_FIND_STEPS // 1.5:
+                    break
 
         #print(dist_list)
         # form 3d array block
@@ -155,13 +158,14 @@ class BMnD(DenoiseMethod):
     def execute_2d(self):
         length, width, height = self.length, self.width, self.height
 
-        denoise_arr: np.ndarray = np.zeros((length, width, height), 'f4')
+        denoise_arr: np.ndarray = np.zeros((length, height, width), 'f4')
 
         input_data = []
         for z in range(length):
             input_data.append((self.data[z], height, width, z))
 
         p = multiprocessing.Pool(multiprocessing.cpu_count())
+        #p = multiprocessing.Pool(1)
         slices_map = p.map(multi_2d, input_data)
 
         for z in range(length):

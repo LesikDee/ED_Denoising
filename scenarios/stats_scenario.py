@@ -5,7 +5,7 @@ from scripts.ed_parser import read
 
 if __name__ == '__main__':
 
-    file_names = [_4XN6]
+    file_names = [_4NRE]
     for name in file_names:
         file_path = str(get_project_root().parent) + name
 

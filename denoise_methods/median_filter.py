@@ -18,26 +18,13 @@ class MedianFilter(DenoiseMethod):
         denoise_arr = np.zeros((length, height, width), 'f4')
         expend_data = self.__expend_array(data, edge)
 
-        pixels_in_window = window_size * window_size * window_size
-
         for z in range(edge, length + edge):
-            print(z / (length - window_size))
+            print(z  - edge)
             for y in range(edge, height + edge):
-                average = 0
-                for j in range(window_size):
-                    for i in range(window_size):
-                        for k in range(window_size):
-                            average += (expend_data[z + k - edge][y + j - edge][i])
-
-                denoise_arr[z - edge][y - edge][0] = average / pixels_in_window
-
-                for x in range(edge + 1, width + edge):
-                    for j in range(window_size):
-                        for k in range(window_size):
-                            average += (expend_data[z + k - edge][y + j - edge][x + edge]
-                                        - expend_data[z + k - edge][y + j - edge][x - edge])
-
-                    denoise_arr[z - edge][y - edge][x - edge] = average / pixels_in_window
+                for x in range(edge, width + edge):
+                    median_arr: np.ndarray = expend_data[z - edge:z + edge + 1, y - edge:y + edge + 1, x - edge: x + edge + 1]
+                    median_val = np.median(median_arr.flatten())
+                    denoise_arr[z - edge][y - edge][x - edge] = median_val
 
         return denoise_arr
 
@@ -56,24 +43,12 @@ class MedianFilter(DenoiseMethod):
         denoise_arr = np.zeros((length, height, width), 'f4')
         expend_data = self.__expend_array(data, edge)
 
-        pixels_in_window = window_size * window_size
-
         for z in range(edge, length + edge):
-            print(z/ (length - window_size))
+            print(z - edge)
             for y in range(edge, height + edge):
-                average = 0
-                for j in range(window_size):
-                    for i in range(window_size):
-                        average += (expend_data[z][y + j - edge][i])
-
-                denoise_arr[z - edge][y - edge][0] = average / pixels_in_window
-
-                for x in range(edge + 1, width + edge):
-                    for j in range(window_size):
-                        average += (expend_data[z][y + j - edge][x + edge] - expend_data[z][y + j - edge][x - edge])
-
-                    denoise_arr[z - edge][y - edge][x - edge] = average / pixels_in_window
-
-
+                for x in range(edge, width + edge):
+                    median_arr: np.ndarray = expend_data[z][y - edge:y + edge + 1,x - edge: x + edge + 1]
+                    median_val = np.median(median_arr.flatten())
+                    denoise_arr[z - edge][y - edge][x - edge] = median_val
 
         return denoise_arr

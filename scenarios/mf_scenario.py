@@ -13,7 +13,7 @@ for name in file_names:
 
     import denoise_methods.median_filter as mf
     denoiser = mf.MedianFilter(ed.values)
-    denoise_data = denoiser.execute_3d()
+    denoise_data = denoiser.execute_2d()
 
     #ed.values = denoise_data
     ed.update_from_values(denoise_data)
@@ -29,7 +29,5 @@ for name in file_names:
     ed.header.fields["sd"] = ed.header.stddev
 
     print(ed.header.min, ed.header.max, ed.header.mean, ed.header.stddev)
-    #ed.re_normalize()
-    edplot.edplot2d(ed)
 
-    to_ccp4_file(ed, 'mf_3d')
+    to_ccp4_file(ed, 'mf_2d_v2')

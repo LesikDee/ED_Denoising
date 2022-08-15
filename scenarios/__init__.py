@@ -1,5 +1,6 @@
 EMD_3061 = '/mol_data/ccp4/EMD-3061.ccp4'
 EMD_6479 = '/mol_data/ccp4/EMD-6479.ccp4'
 EMD_2984 = '/mol_data/ccp4/EMD-2984.ccp4'
+EMD_21452 = '/mol_data/ccp4/EMD-21452.ccp4'
 _4NRE = '/mol_data/ccp4/4NRE.ccp4'
 _4XN6 = '/mol_data/ccp4/4XN6.ccp4'

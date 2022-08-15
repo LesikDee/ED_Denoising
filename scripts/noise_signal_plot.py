@@ -44,7 +44,8 @@ def write_stats(ed: MolRepresentation, file_type = '_stats'):
     with open(''.join(['../results/',name,'/', name,  file_type ,'.txt']), 'w') as f:
         f.write('mean ' + str(ed.header.mean) + '\n')
         f.write('sd ' + str(ed.header.stddev) + '\n')
-
+        f.write(' '.join(['Length, height, width: ', str(ed.header.fields["NS"]),
+                         str(ed.header.fields["NR"]),str(ed.header.fields["NC"]), '\n']))
         n = len(ed.buffer)
 
         threshold = ed.header.mean + ed.header.stddev

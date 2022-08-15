@@ -7,7 +7,7 @@ import numpy as np
 from scenarios import EMD_2984, _4NRE, EMD_3061, EMD_6479
 
 if __name__ == '__main__':
-    file_names = [EMD_6479]
+    file_names = [_4NRE]
     for name in file_names:
         file_path = str(get_project_root().parent) + name
         ed = read(file_path)

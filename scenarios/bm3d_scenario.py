@@ -1,14 +1,12 @@
-# Step 1. Read data
 from scripts.ed_parser import read
 from scripts import get_project_root
 from scripts.ccp4_parser import to_ccp4_file
 from scripts import edplot
 import numpy as np
+from scenarios import EMD_2984, _4NRE, EMD_3061, EMD_6479
 
 if __name__ == '__main__':
-    file_name1 = '/mol_data/ccp4/EMD-3061.ccp4'  # dsn6/4nre_2fofc.dsn6 ccp4/4nre.ccp4 EMD-3061 EMD-6479
-    file_name2 = '/mol_data/ccp4/EMD-6479.ccp4'
-    file_names = [file_name2] #, file_name2]
+    file_names = [EMD_6479] #, file_name2]
     for name in file_names:
         file_path = str(get_project_root().parent) + name
 

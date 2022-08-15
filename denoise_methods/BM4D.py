@@ -86,7 +86,7 @@ def multi_3d(input_tuple):
 
             y += BM4D.PATCH_STEP
 
-        print(z)
+        #print(z)
         z += BM4D.PATCH_STEP
 
     numerator_slice /= denum_slice
@@ -94,7 +94,7 @@ def multi_3d(input_tuple):
 
 class BM4D(DenoiseMethod):
 
-    PATCH_SIZE = 14
+    PATCH_SIZE = 16
 
     PATCH_STEP = 5
 

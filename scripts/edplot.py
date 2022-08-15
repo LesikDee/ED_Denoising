@@ -18,23 +18,23 @@ def edplot2d(edfile, sec=-1, factor=1, optName = 'file'):
     crop_max = edfile.header.mean + factor * edfile.header.stddev
 
     def crop(x):
-        return crop_val if  x < crop_max else x
+        return crop_val if  crop_min < x < crop_max else x
 
     values = edfile.values[sec]
     values_cropped = np.vectorize(crop)(values)
-    norm = matplotlib.colors.Normalize(edfile.header.min, edfile.header.max)
+    norm = matplotlib.colors.Normalize(crop_min, crop_max)
 
     pyplot.figure()
     pyplot.suptitle(name)
-    pyplot.subplot(2, 2, 1)
-    pyplot.imshow(values, cmap='gray')
-    pyplot.subplot(2, 2, 2)
-    pyplot.imshow(values, cmap='bwr', norm=norm)
-    pyplot.subplot(2, 2, 3)
-    pyplot.imshow(values_cropped, cmap='gray')
-    pyplot.subplot(2, 2, 4)
+    # pyplot.subplot(2, 2, 1)
+    # pyplot.imshow(values, cmap='gray')
+    # pyplot.subplot(2, 2, 2)
+    # pyplot.imshow(values, cmap='bwr', norm=norm)
+    # pyplot.subplot(2, 2, 3)
+    # pyplot.imshow(values_cropped, cmap='gray')
+    # pyplot.subplot(2, 2, 4)
     pyplot.imshow(values_cropped, cmap='bwr', norm=norm)
-    #pyplot.show()
+    # pyplot.show()
 
     pyplot.savefig(''.join(['../results/', name, '/', optName ,'.png']))
 

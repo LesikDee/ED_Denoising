@@ -15,7 +15,7 @@ def weight(p: Voxel, q: Voxel, data, sigma) -> float:
     sigma2 = 0.0007
     h2 = 1.4 * sigma2
     d_2 = distance2_3d(p, q, data)
-    #print(math.e ** -(max(d_2 - 0.0007, 0.0) / h2))
+    #print(d_2, math.e ** -(max(d_2 - 0.0007, 0.0) / h2))
     return math.e ** -(max(d_2 - sigma2, 0.0) / h2)
 
 def __precise_edges(p: Voxel, length, height, width, offset_length):
@@ -70,7 +70,7 @@ def multi_3d(input_tuple):
             denoise_arr[p.y][p.x] = nl_u / c
 
 
-    print(z)
+    #print(z)
     return denoise_arr
 
 class Pixel:
