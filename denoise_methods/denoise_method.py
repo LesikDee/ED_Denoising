@@ -1,14 +1,18 @@
 import numpy as np
+
+
 class Pixel:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
 
 class Voxel:
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
+
 
 class DenoiseMethod:
     def __init__(self, data: np.ndarray):

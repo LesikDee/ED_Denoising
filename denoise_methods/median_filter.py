@@ -1,11 +1,9 @@
-import numpy as np
 from .denoise_method import *
-from time import sleep
+
 
 class MedianFilter(DenoiseMethod):
-    def __init__(self, data: np.ndarray, sigma: float = 0):
+    def __init__(self, data: np.ndarray):
         super().__init__(data)
-        self.sigma = sigma
 
         self.window_size = 11
 
@@ -50,5 +48,4 @@ class MedianFilter(DenoiseMethod):
                     median_arr: np.ndarray = expend_data[z][y - edge:y + edge + 1,x - edge: x + edge + 1]
                     median_val = np.median(median_arr.flatten())
                     denoise_arr[z - edge][y - edge][x - edge] = median_val
-
         return denoise_arr

@@ -62,11 +62,10 @@ class CCP4Header:
         self.nsec = self.fields["NS"]
 
 
-
 class CCP4File(MolRepresentation):
     def __init__(self, name, header, data):
         super().__init__(name)
-        self.header: CCP4Header  = header
+        self.header: CCP4Header = header
         self.buffer = np.array(np.frombuffer(data, 'f4'), 'f4')
 
         self.values = np.ndarray((header.fields["NS"], header.fields["NR"], header.fields["NC"]), 'f4',
@@ -83,15 +82,17 @@ def read(filename):
 
     return CCP4File(os.path.basename(filename), header, data)
 
+
 type_clarify = {
-    'u4':   'uint32',
-    'i4':   'int32',
-    'f4':   'float32',
+    'u4': 'uint32',
+    'i4': 'int32',
+    'f4': 'float32',
 }
 
-def to_ccp4_file(ed: MolRepresentation, suffix = ''):
+
+def to_ccp4_file(ed: MolRepresentation, suffix=''):
     name = ed.name.split('.')[0]
-    file_name = ''.join(['../results/', name, '/', name, '_', suffix,'.ccp4'])
+    file_name = ''.join(['../results/', name, '/', name, '_', suffix, '.ccp4'])
     with open(file_name, 'w') as f:
         # write header
         prev_val_i = 0

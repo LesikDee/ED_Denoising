@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class MolRepresentation:
     def __init__(self, name: str):
         self.name = name
@@ -19,7 +20,6 @@ class MolRepresentation:
 
         self.buffer -= min_val
         self.buffer /= max_val - min_val
-
 
     def re_normalize(self):
         if self.is_normalized:

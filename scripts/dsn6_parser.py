@@ -107,6 +107,7 @@ class DSN6File(MolRepresentation):
         self.values = np.ndarray((z_extent, y_extent, x_extent), 'f4',  buffer=buffer)
         self.buffer = buffer
 
+
 def read(filename):
     with open(filename, 'rb') as f:
         header = DSN6Header(f.read())

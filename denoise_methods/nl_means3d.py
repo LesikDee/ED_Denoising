@@ -3,6 +3,7 @@ from .denoise_method import *
 import random
 import multiprocessing
 
+
 def distance2_3d(p: Voxel, q: Voxel, data):
     f = NLMeans.f
     dist_m = data[p.z - f: p.z + f + 1, p.y - f: p.y + f + 1, p.x - f: p.x + f + 1] - \
@@ -11,12 +12,13 @@ def distance2_3d(p: Voxel, q: Voxel, data):
     dist_2 = np.sum(dist_m ** 2)
     return dist_2 / (2 * f + 1) ** 3
 
+
 def weight(p: Voxel, q: Voxel, data, sigma) -> float:
-    sigma2 = 0.0007
-    h2 = 1.4 * sigma2
+    h2 = 1.4 * sigma
     d_2 = distance2_3d(p, q, data)
-    #print(d_2, math.e ** -(max(d_2 - 0.0007, 0.0) / h2))
-    return math.e ** -(max(d_2 - sigma2, 0.0) / h2)
+
+    return math.e ** -(max(d_2 - sigma, 0.0) / h2)
+
 
 def __precise_edges(p: Voxel, length, height, width, offset_length):
     precise_p: Voxel = Voxel(p.x, p.y, p.z)
@@ -69,14 +71,14 @@ def multi_3d(input_tuple):
 
             denoise_arr[p.y][p.x] = nl_u / c
 
-
-    #print(z)
     return denoise_arr
+
 
 class Pixel:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
 
 class NLMeans(DenoiseMethod):
 
@@ -84,26 +86,24 @@ class NLMeans(DenoiseMethod):
 
     r = 22
 
-    f =  6
+    f = 6
 
     def __init__(self, data: np.ndarray, sigma: float):
         super().__init__(data)
         self.sigma = sigma
 
-        self.h: int = 0.4 * sigma
-
+        self.h = 0.4 * sigma
 
     def execute_3d(self):
         data = self.data
         length, width, height = self.length, self.width, self.height
-        denoise_arr: np.ndarray = np.zeros((length,height, width), 'f4')
+        denoise_arr: np.ndarray = np.zeros((length, height, width), 'f4')
 
         input_data = []
         for z in range(length):
             input_data.append((data, length, height, width, self.sigma, z))
 
         p = multiprocessing.Pool(multiprocessing.cpu_count())
-        #p = multiprocessing.Pool(1)
         slices_map = p.map(multi_3d, input_data)
 
         for z in range(length):

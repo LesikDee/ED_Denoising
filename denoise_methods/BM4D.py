@@ -10,24 +10,25 @@ def distance3d(p: Voxel, q: Voxel, data, patch_size):
     dist_2 = np.sum(dist_m ** 2)
     return 1000.0 * dist_2 / (patch_size * patch_size * patch_size)
 
+
 # current_p - left upper patch pixel
 class Area3D:
     def __init__(self, current_p: Voxel, length: int, height: int, width: int, area_size, window_size):
-        p_start_x =  current_p.x - area_size // 2 + window_size // 2
+        p_start_x = current_p.x - area_size // 2 + window_size // 2
         if p_start_x < 0:
             p_start_x = 0
 
         if p_start_x + area_size + window_size >= width:
             p_start_x = width - area_size - window_size
 
-        p_start_y =  current_p.y - area_size // 2 + window_size // 2
+        p_start_y = current_p.y - area_size // 2 + window_size // 2
         if p_start_y < 0:
             p_start_y = 0
 
         if p_start_y + area_size + window_size >= height:
             p_start_y = height - area_size - window_size
 
-        p_start_z =  current_p.z - area_size // 2 + window_size // 2
+        p_start_z = current_p.z - area_size // 2 + window_size // 2
         if p_start_z < 0:
             p_start_z = 0
 
@@ -35,7 +36,7 @@ class Area3D:
             p_start_z = length - area_size - window_size
 
         self.start: Voxel = Voxel(x=p_start_x, y=p_start_y, z=p_start_z)
-        self.end: Voxel = Voxel(x=p_start_x + area_size, y=p_start_y+ area_size, z=p_start_z+ area_size)
+        self.end: Voxel = Voxel(x=p_start_x + area_size, y=p_start_y + area_size, z=p_start_z + area_size)
 
 
 def multi_3d(input_tuple):
@@ -77,10 +78,10 @@ def multi_3d(input_tuple):
                         x_place = block_place[block_4d].x
                         z_place = block_place[block_4d].z
                         numerator_slice[z_place: z_place + BM4D.PATCH_SIZE, y_place: y_place + BM4D.PATCH_SIZE,
-                            x_place: x_place + BM4D.PATCH_SIZE]  += block_filtered[block_4d]
+                        x_place: x_place + BM4D.PATCH_SIZE] += block_filtered[block_4d]
 
                         denum_slice[z_place: z_place + BM4D.PATCH_SIZE, y_place: y_place + BM4D.PATCH_SIZE,
-                            x_place: x_place + BM4D.PATCH_SIZE] += 1.0
+                        x_place: x_place + BM4D.PATCH_SIZE] += 1.0
 
                 x += BM4D.PATCH_STEP
 
@@ -92,9 +93,9 @@ def multi_3d(input_tuple):
     numerator_slice /= denum_slice
     return numerator_slice
 
-class BM4D(DenoiseMethod):
 
-    PATCH_SIZE = 16
+class BM4D(DenoiseMethod):
+    PATCH_SIZE = 14
 
     PATCH_STEP = 5
 
@@ -102,12 +103,11 @@ class BM4D(DenoiseMethod):
 
     MATCH_AREA_SIZE = 44
 
-    def __init__(self, data: np.ndarray, sigma: float = 0):
+    def __init__(self, data: np.ndarray):
         super().__init__(data)
-        self.sigma = sigma
 
     @staticmethod
-    def grouping_3d(data: np.ndarray, patch_p: Voxel, length, height, width, tr = 1.0):
+    def grouping_3d(data: np.ndarray, patch_p: Voxel, length, height, width, tr=1.0):
         block_index = [patch_p]
         dist_list = [0.0]
 
@@ -125,7 +125,7 @@ class BM4D(DenoiseMethod):
                 continue
 
             dist = distance3d(patch_p, potential_patch, data, BM4D.PATCH_SIZE)
-            #print(dist)
+            # print(dist)
             if dist < tr:
                 i = 0
                 while i < len(block_index) and dist > dist_list[i]:
@@ -139,13 +139,13 @@ class BM4D(DenoiseMethod):
                 if find_steps == BM4D.MAX_FIND_STEPS // 1.5:
                     break
 
-        #print(dist_list)
+        # print(dist_list)
 
         # form 4d array block
-        block = np.ndarray((len(block_index),BM4D.PATCH_SIZE, BM4D.PATCH_SIZE, BM4D.PATCH_SIZE), dtype='f4')
+        block = np.ndarray((len(block_index), BM4D.PATCH_SIZE, BM4D.PATCH_SIZE, BM4D.PATCH_SIZE), dtype='f4')
         in_p = 0
         for p in block_index:
-            block[in_p] = data[p.z: p.z +  BM4D.PATCH_SIZE, p.y: p.y +  BM4D.PATCH_SIZE, p.x: p.x +  BM4D.PATCH_SIZE]
+            block[in_p] = data[p.z: p.z + BM4D.PATCH_SIZE, p.y: p.y + BM4D.PATCH_SIZE, p.x: p.x + BM4D.PATCH_SIZE]
             in_p += 1
 
         return [block, block_index]
@@ -168,8 +168,8 @@ class BM4D(DenoiseMethod):
 
         return filtered_block
 
-    #bm3d
-    def execute_3d(self, tr = 1.0):
+    # bm3d
+    def execute_3d(self, tr=1.0):
         length, width, height = self.length, self.width, self.height
 
         denoise_arr = multi_3d((self.data, length, height, width, tr))
