@@ -32,7 +32,7 @@ Then supposed to apply noise reduction algorithms to these maps.
 ## Implemented algorithms
 - [Median filter](https://en.wikipedia.org/wiki/Median_filter) with 2d and 3d window.
 - [Non-local means](https://en.wikipedia.org/wiki/Non-local_means) with 2d and 3d window.
-- [Block-matching and 3D filtering (BM3D)](https://en.wikipedia.org/wiki/Non-local_means) and generalization to 3d input picture - BM4D.
+- [Block-matching and 3D filtering (BM3D)](https://en.wikipedia.org/wiki/Block-matching_and_3D_filtering) and generalization to 3d input picture - BM4D.
 
 For non-local means and BM3D-BM4D applying an approach to matching a random subset (not all, but a sufficient number) of matching blocks. This approach 
 is based on [*Monte Carlo non local means: Random sampling for large-scale image filtering*](https://arxiv.org/abs/1312.7366) article.
@@ -42,7 +42,7 @@ The implementation of BM3D-BM4D is not entirely done (omitted second step with f
 Code supported ccp4 (.map) and dsn6 formats of electron density maps. So there are
 [ccp4](https://github.com/LesikDee/ED_Denoising/blob/add-readme/scripts/ccp4_parser.py) and
 [dsn6](https://github.com/LesikDee/ED_Denoising/blob/add-readme/scripts/dsn6_parser.py) parsers accordingly.  
-Class [MolRepresentation](https://github.com/LesikDee/ED_Denoising/blob/add-readme/scripts/molecule.py) consists of:
+Class [MolRepresentation](https://github.com/LesikDee/ED_Denoising/blob/master/scripts/molecule.py) consists of:
 - 3-d NumPy array which is the content of ed-map
 - header of ed-map (some additional meta information)
 - statistics information (required for normalization)
